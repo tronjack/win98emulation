@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+Project: Jordan Oamelda Win98
+Description: A nostalgic browser-based mini operating system emulating Windows 98 aesthetics and behavior. Features classic games (Tic-Tac-Toe, Tetris, Minesweeper, Snake, Paint, Clock, Chess) and productivity utilities (Notepad, Calculator, To-Do List, Calendar, Unit Converter, Dictionary, Weather).
+Created by: Jordan Oamelda
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jordan Oamelda Win98</title>
+  <style>
+    /* Win98 theme */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #008080; font-family: "MS Sans Serif", "Tahoma", sans-serif; }
+    #desktop { position: relative; width: 100%; height: calc(100% - 40px);
+      background: url('https://upload.wikimedia.org/wikipedia/commons/6/6c/Windows_98_wallpaper.png') no-repeat center/cover;
+      padding: 10px;
+    }
+    .icon { width: 60px; text-align: center; margin: 10px; cursor: pointer; display: inline-block; color: black; }
+    .icon img { width: 32px; height: 32px; }
+    .icon div { font-size: 10px; margin-top: 2px; }
+    #taskbar { position: absolute; bottom: 0; left: 0; width: 100%; height: 40px;
+      background: #C0C0C0; border-top: 2px solid #fff; border-left: 2px solid #fff;
+      border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+      display: flex; align-items: center; padding: 0 4px;
+    }
+    #start-button { display: flex; align-items: center; padding: 2px 8px; background: #C0C0C0;
+      border-top: 2px solid #fff; border-left: 2px solid #fff;
+      border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+      font-size: 12px; cursor: pointer; margin-right: 4px;
+    }
+    #start-button:active { border-top: 2px solid #808080; border-left: 2px solid #808080;
+      border-bottom: 2px solid #fff; border-right: 2px solid #fff;
+    }
+    #start-button img { width: 16px; height: 16px; margin-right: 4px; }
+    #start-menu { position: absolute; bottom: 40px; left: 0; width: 280px;
+      background: #C0C0C0; border: 2px solid #808080; display: none;
+    }
+    #start-menu ul { list-style: none; }
+    #start-menu li { padding: 4px 8px; font-size: 12px;
+      border-top: 1px solid #fff; border-left: 1px solid #fff;
+      border-bottom: 1px solid #808080; border-right: 1px solid #808080;
+      background: #C0C0C0; cursor: pointer;
+    }
+    #start-menu li:hover { background: #000080; color: white; }
+    .window { position: absolute; width: 320px; height: 240px;
+      background: #C0C0C0; border: 2px solid #808080;
+      display: flex; flex-direction: column; z-index: 10;
+    }
+    .title-bar { display: flex; justify-content: space-between; align-items: center;
+      background: #000080; color: white; font-size: 12px; padding: 2px 4px;
+      cursor: move;
+    }
+    .controls button { width: 16px; height: 16px; background: #C0C0C0;
+      border: 2px solid #fff; border-left: 2px solid #808080;
+      margin-left: 2px; padding: 0; cursor: pointer;
+      font-family: "MS Sans Serif";
+    }
+    .controls button:active { border-top: 2px solid #808080;
+      border-left: 2px solid #808080; border-bottom: 2px solid #fff;
+      border-right: 2px solid #fff;
+    }
+    .content { flex: 1; background: white; padding: 4px; overflow: auto;
+      border: 2px solid #fff; border-left: 2px solid #C0C0C0;
+    }
+    .grid3 { display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); gap: 2px; }
+    .grid8 { display: grid; grid-template: repeat(8,1fr)/repeat(8,1fr); gap: 2px; }
+    canvas { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="desktop">
+    <!-- Utilities -->
+    <div class="icon" data-app="notepad"><img src="https://img.icons8.com/fluency/48/000000/notepad.png"/><div>Notepad</div></div>
+    <div class="icon" data-app="calculator"><img src="https://img.icons8.com/fluency/48/000000/calculator.png"/><div>Calculator</div></div>
+    <!-- Games -->
+    <div class="icon" data-app="tictactoe"><img src="https://img.icons8.com/fluency/48/000000/tic-tac-toe.png"/><div>TicTacToe</div></div>
+    <div class="icon" data-app="minesweeper"><img src="https://img.icons8.com/fluency/48/000000/minesweeper.png"/><div>Minesweeper</div></div>
+    <div class="icon" data-app="snake"><img src="https://img.icons8.com/fluency/48/000000/snake.png"/><div>Snake</div></div>
+    <div class="icon" data-app="tetris"><img src="https://img.icons8.com/fluency/48/000000/tetris.png"/><div>Tetris</div></div>
+    <div class="icon" data-app="paint"><img src="https://img.icons8.com/fluency/48/000000/paint-brush.png"/><div>Paint</div></div>
+    <div class="icon" data-app="clock"><img src="https://img.icons8.com/fluency/48/000000/clock.png"/><div>Clock</div></div>
+    <!-- More Utilities -->
+    <div class="icon" data-app="todo"><img src="https://img.icons8.com/fluency/48/000000/todo-list.png"/><div>To‑Do</div></div>
+    <div class="icon" data-app="calendar"><img src="https://img.icons8.com/fluency/48/000000/calendar.png"/><div>Calendar</div></div>
+    <div class="icon" data-app="converter"><img src="https://img.icons8.com/fluency/48/000000/conversion.png"/><div>Converter</div></div>
+    <div class="icon" data-app="dictionary"><img src="https://img.icons8.com/fluency/48/000000/dictionary.png"/><div>Dictionary</div></div>
+    <div class="icon" data-app="weather"><img src="https://img.icons8.com/fluency/48/000000/partly-cloudy-day.png"/><div>Weather</div></div>
+    <div class="icon" data-app="about"><img src="https://img.icons8.com/fluency/48/000000/info.png"/><div>About</div></div>
+  </div>
+  <div id="taskbar">
+    <button id="start-button"><img src="https://img.icons8.com/fluency/48/000000/windows-98.png"/>Start</button>
+  </div>
+  <div id="start-menu">
+    <ul>
+      <li data-app="notepad">Notepad</li>
+      <li data-app="calculator">Calculator</li>
+      <li data-app="tictactoe">TicTacToe</li>
+      <li data-app="minesweeper">Minesweeper</li>
+      <li data-app="snake">Snake</li>
+      <li data-app="tetris">Tetris</li>
+      <li data-app="paint">Paint</li>
+      <li data-app="clock">Clock</li>
+      <li data-app="todo">To‑Do</li>
+      <li data-app="calendar">Calendar</li>
+      <li data-app="converter">Converter</li>
+      <li data-app="dictionary">Dictionary</li>
+      <li data-app="weather">Weather</li>
+      <li data-app="about">About</li>
+    </ul>
+  </div>
+  <script>
+    let zIndex = 1;
+    const startBtn = document.getElementById('start-button');
+    const startMenu = document.getElementById('start-menu');
+    startBtn.addEventListener('click', e => { e.stopPropagation(); startMenu.style.display = startMenu.style.display === 'block' ? 'none' : 'block'; });
+    document.addEventListener('click', () => startMenu.style.display = 'none');
+    document.querySelectorAll('.icon').forEach(icon => icon.addEventListener('dblclick', () => launch(icon.dataset.app)));
+    document.querySelectorAll('#start-menu li').forEach(li => li.addEventListener('click', () => { launch(li.dataset.app); startMenu.style.display = 'none'; }));
+
+    function launch(app) {
+      const win = document.createElement('div'); win.className = 'window'; win.style.top = '60px'; win.style.left = '60px'; win.style.zIndex = zIndex++;
+      const bar = document.createElement('div'); bar.className = 'title-bar'; bar.innerHTML = `<span>${app}</span>`;
+      const ctrl = document.createElement('div'); ctrl.className = 'controls';
+      const closeBtn = document.createElement('button'); closeBtn.textContent = '✕'; closeBtn.onclick = () => win.remove(); ctrl.appendChild(closeBtn);
+      bar.appendChild(ctrl); win.appendChild(bar);
+      const content = document.createElement('div'); content.className = 'content';
+
+      if(app === 'notepad') {
+        const ta = document.createElement('textarea'); ta.style.width = '100%'; ta.style.height = '100%'; content.appendChild(ta);
+      } else if(app === 'calculator') {
+        const div = document.createElement('div');
+        const inp = document.createElement('input'); inp.readOnly = true; inp.style.width = '100%'; div.appendChild(inp);
+        '789/456*123-0.+='.split('').forEach(c => {
+          const b = document.createElement('button'); b.textContent = c;
+          b.onclick = () => { if(c === '=') { try{ inp.value = eval(inp.value); } catch { inp.value = 'Err'; } } else inp.value += c; };
+          div.appendChild(b);
+        });
+        content.appendChild(div);
+      } else if(app === 'tictactoe') {
+        const grid = document.createElement('div'); grid.className = 'grid3';
+        let turn = 'X'; const cells = [];
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        function checkWin() { return wins.some(r => r.every(i => cells[i].textContent === turn)); }
+        for(let i=0;i<9;i++) {
+          const b = document.createElement('button');
+          b.onclick = () => {
+            if(!b.textContent) {
+              b.textContent = turn;
+              if(checkWin()) alert(turn + ' wins!');
+              else if(cells.every(c => c.textContent)) alert('Draw!');
+              turn = turn === 'X' ? 'O' : 'X';
+            }
+          };
+          grid.appendChild(b); cells.push(b);
+        }
+        content.appendChild(grid);
+      } else if(app === 'minesweeper') {
+        initMinesweeper(content);
+      } else if(app === 'snake') {
+        initSnake(content);
+      } else if(app === 'tetris') {
+        initTetris(content);
+      } else if(app === 'paint') {
+        const cnv = document.createElement('canvas'); cnv.width = 300; cnv.height = 200; content.appendChild(cnv);
+        const ctx = cnv.getContext('2d'); let drawing = false;
+        cnv.addEventListener('mousedown', ()=> drawing = true);
+        cnv.addEventListener('mouseup', ()=> drawing = false);
+        cnv.addEventListener('mousemove', e => { if(drawing) ctx.fillRect(e.offsetX, e.offsetY, 2, 2); });
+      } else if(app === 'clock') {
+        const d = document.createElement('div'); d.style.fontSize = '1.5rem'; content.appendChild(d);
+        setInterval(() => d.textContent = new Date().toLocaleTimeString(), 500);
+      } else if(app === 'todo') {
+        initTodo(content);
+      } else if(app === 'calendar') {
+        initCalendar(content);
+      } else if(app === 'converter') {
+        initConverter(content);
+      } else if(app === 'dictionary') {
+        initDictionary(content);
+      } else if(app === 'weather') {
+        initWeather(content);
+      } else if(app === 'about') {
+        content.innerHTML =
+          '<h2>About Jordan Oamelda&#39;s OS</h2>' +
+          '<p>Created by Jordan Oamelda, this browser-based mini-OS blooms with digital nostalgia, blending retro charm and modern functionality. ' +
+          'What began as a pixelated dream springs to life through playful games and handy utilities, all wrapped in the warm embrace of Windows 98 style.</p>' +
+          '<p>May every click sparkle with creativity, and each window invite you on a whimsical journey through time and technology.</p>';
+      }
+
+      win.appendChild(content); document.body.appendChild(win);
+      enableDrag(win, bar);
+    }
+
+    function enableDrag(win, bar) {
+      let dragging=false, ox=0, oy=0;
+      bar.addEventListener('mousedown', e => { dragging=true; ox = e.clientX - win.offsetLeft; oy = e.clientY - win.offsetTop; win.style.zIndex = ++zIndex; });
+      document.addEventListener('mousemove', e => { if(dragging) { win.style.left = e.clientX - ox + 'px'; win.style.top = e.clientY - oy + 'px'; }});
+      document.addEventListener('mouseup', () => dragging = false);
+    }
+
+    function initMinesweeper(container) {
+      const rows=8, cols=8, mines=10;
+      const grid = Array.from({length:rows}, () => Array.from({length:cols}, () => ({mine:false,adj:0}))); 
+      let placed=0;
+      while(placed<mines) {
+        const y=Math.floor(Math.random()*rows), x=Math.floor(Math.random()*cols);
+        if(!grid[y][x].mine) { grid[y][x].mine=true; placed++; }
+      }
+      for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) if(!grid[y][x].mine) {
+        grid[y][x].adj = [-1,0,1].flatMap(dy=>[-1,0,1].map(dx=>[dy,dx]))
+          .filter(([dy,dx])=> (dy||dx) && grid[y+dy]?.[x+dx]?.mine).length;
+      }
+      const board = document.createElement('div'); board.className='grid8';
+      for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) {
+        const btn=document.createElement('button'); btn.onclick=()=>{
+          if(grid[y][x].mine) alert('Boom!');
+          else { btn.textContent = grid[y][x].adj || ''; btn.disabled=true; }
+        };
+        board.appendChild(btn);
+      }
+      container.appendChild(board);
+    }
+
+    function initSnake(container) {
+      const size=16, cols=20, rows=15;
+      const cnv=document.createElement('canvas'); cnv.width=cols*size; cnv.height=rows*size; container.appendChild(cnv);
+      const ctx=cnv.getContext('2d'); let snake=[{x:10,y:7}], dir={x:1,y:0}, food={x:5,y:5};
+      document.addEventListener('keydown', e=>{ if(e.key.includes('Arrow')) { switch(e.key) {
+        case 'ArrowUp': dir={x:0,y:-1}; break;
+        case 'ArrowDown': dir={x:0,y:1}; break;
+        case 'ArrowLeft': dir={x:-1,y:0}; break;
+        case 'ArrowRight': dir={x:1,y:0}; break;
+      }}});
+      function loop(){
+        const head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+        if(head.x<0||head.x>=cols||head.y<0||head.y>=rows||snake.some(s=>s.x===head.x&&s.y===head.y)) return alert('Game Over');
+        snake.unshift(head);
+        if(head.x===food.x&&head.y===food.y) { food={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)}; }
+        else snake.pop();
+        ctx.fillStyle='#000'; ctx.fillRect(0,0,cnv.width,cnv.height);
+        ctx.fillStyle='#0f0'; snake.forEach(s=>ctx.fillRect(s.x*size,s.y*size,size,size));
+        ctx.fillStyle='#f00'; ctx.fillRect(food.x*size,food.y*size,size,size);
+      }
+      setInterval(loop,150);
+    }
+
+    function initTetris(container) {
+      const cnv=document.createElement('canvas'); cnv.width=240; cnv.height=400; container.appendChild(cnv);
+      const ctx=cnv.getContext('2d'); ctx.scale(20,20);
+      const arena = Array.from({length:20}, () => Array(12).fill(0));
+      const colors=[null,'#FF0D72','#0DC2FF','#0DFF72','#F538FF','#FF8E0D','#FFE138','#3877FF'];
+      function drawMatrix(m,o){ m.forEach((row,y)=>row.forEach((v,x)=>{ if(v) { ctx.fillStyle=colors[v]; ctx.fillRect(x+o.x,y+o.y,1,1); }})); }
+      function draw(){ ctx.fillStyle='#000'; ctx.fillRect(0,0,cnv.width,cnv.height); drawMatrix(arena,{x:0,y:0}); drawMatrix(player.matrix,player.pos); }
+      function collide(){ const [m,o]=[player.matrix,player.pos]; for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++) if(m[y][x] && (arena[y+o.y]&&arena[y+o.y][x+o.x])!==0) return true; return false; }
+      function merge(){ player.matrix.forEach((row,y)=>row.forEach((v,x)=>{ if(v) arena[y+player.pos.y][x+player.pos.x]=v; })); }
+      function createPiece(type){ switch(type){
+        case 'T': return [[0,0,0],[1,1,1],[0,1,0]];
+        case 'O': return [[2,2],[2,2]];
+        case 'L': return [[0,3,0],[0,3,0],[0,3,3]];
+        case 'J': return [[0,4,0],[0,4,0],[4,4,0]];
+        case 'I': return [[0,5,0,0],[0,5,0,0],[0,5,0,0],[0,5,0,0]];
+        case 'S': return [[0,6,6],[6,6,0],[0,0,0]];
+        case 'Z': return [[7,7,0],[0,7,7],[0,0,0]];
+      }}
+      function playerReset(){ const pieces='TJLOSZI'; player.matrix=createPiece(pieces[Math.floor(Math.random()*pieces.length)]);
+        player.pos.y=0; player.pos.x=((arena[0].length/2|0)-(player.matrix[0].length/2|0)); if(collide()){ arena.forEach(r=>r.fill(0)); }
+      }
+      function update(time=0){ const dt=time-lastTime; lastTime=time; dropCounter+=dt; if(dropCounter>dropInterval){ player.pos.y++; if(collide()){ player.pos.y--; merge(); playerReset(); } dropCounter=0; } draw(); requestAnimationFrame(update); }
+      document.addEventListener('keydown', e=>{ if(e.keyCode===37) player.pos.x--; else if(e.keyCode===39) player.pos.x++; else if(e.keyCode===40) player.pos.y++; else if(e.keyCode===81) rotate(-1); else if(e.keyCode===87) rotate(1); });
+      function rotate(dir){ const m=player.matrix; for(let y=0;y<m.length;y++)for(let x=0;x<y;x++) [m[x][y],m[y][x]]=[m[y][x],m[x][y]]; if(dir>0) m.forEach(r=>r.reverse()); else m.reverse(); if(collide()) rotate(-dir); }
+      let dropCounter=0, dropInterval=1000, lastTime=0; const player={pos:{x:0,y:0},matrix:null}; playerReset(); update();
+    }
+
+    function initTodo(container){ const d=document.createElement('div'), i=document.createElement('input'), b=document.createElement('button'), u=document.createElement('ul'); i.placeholder='New task'; b.textContent='Add'; b.onclick=()=>{ if(i.value){ const l=document.createElement('li'); l.textContent=i.value; u.appendChild(l); i.value=''; }}; d.append(i,b,u); container.appendChild(d);}    
+    function initCalendar(container){ const n=new Date(), m=n.getMonth(), y=n.getFullYear(), fd=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), g=document.createElement('div'); g.className='calendar-grid'; ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(w=>{ const e=document.createElement('div'); e.textContent=w; g.appendChild(e); }); for(let k=0;k<fd;k++) g.appendChild(document.createElement('div')); for(let d=1; d<=days; d++){ const e=document.createElement('div'); e.className='calendar-day'; e.textContent=d; g.appendChild(e); } container.appendChild(g);}    
+    function initConverter(container){ const p=document.createElement('div'), s=document.createElement('select'), iv=document.createElement('input'), r=document.createElement('div'), f={'kg→lb':v=>v*2.20462,'lb→kg':v=>v/2.20462,'m→ft':v=>v*3.28084,'ft→m':v=>v/3.28084,'°C→°F':v=>v*9/5+32,'°F→°C':v=>(v-32)*5/9}; ['kg→lb','lb→kg','m→ft','ft→m','°C→°F','°F→°C'].forEach(o=>s.appendChild(new Option(o))); iv.type='number'; iv.oninput=s.onchange=()=>{ const v=parseFloat(iv.value); if(!isNaN(v)) r.textContent=f[s.value](v).toFixed(2); }; p.append(s,iv,r); container.appendChild(p);}    
+    function initDictionary(container){ const p=document.createElement('div'), i=document.createElement('input'), b=document.createElement('button'), o=document.createElement('div'); i.placeholder='Word'; b.textContent='Define'; b.onclick=()=>{ o.textContent='...'; fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${i.value}`).then(r=>r.json()).then(j=> o.innerHTML=j[0].meanings.map(m=>`<strong>${m.partOfSpeech}</strong>: ${m.definitions[0].definition}`).join('<br>')).catch(_=>o.textContent='Not found'); }; p.append(i,b,o); container.appendChild(p);}    
+    function initWeather(container){ const p=document.createElement('div'), i=document.createElement('input'), b=document.createElement('button'), o=document.createElement('div'); i.placeholder='City'; b.textContent='Get'; b.onclick=()=>{ o.textContent='...'; fetch(`https://wttr.in/${i.value}?format=j1`).then(r=>r.json()).then(j=> o.textContent=`${j.current_condition[0].temp_C}°C ${j.current_condition[0].weatherDesc[0].value}`).catch(_=>o.textContent='Error'); }; p.append(i,b,o); container.appendChild(p);}    
+  </script>
+</body>
+</html>
